@@ -15,10 +15,10 @@ test_loader = loader.testLoader(batch_size)
 lr = 1e-5
 
 
-# device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-
-
 def main(training_data, testing_data, num_epochs):
+    '''
+        This is the main function
+    '''
     device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
     model = gan(device, lr, batch_size).to(device)
     g_optimizer = torch.optim.Adam(model.generator.parameters(), lr=lr)

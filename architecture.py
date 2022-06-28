@@ -7,6 +7,9 @@ sigmoid = nn.Sigmoid()
 
 
 class gan(nn.Module):
+    """
+           CNN Model for GAN
+    """
     def __init__(self, device, learning_rate, batch_size):
         super(gan, self).__init__()
         self.learning_rate = learning_rate
@@ -62,18 +65,28 @@ class gan(nn.Module):
         return sample
 
     def d_forward(self, x):
+        """
+            z: random noise passed to generator
+            g_z: generated image (fake)
+            d_g_z: pass fake image to discriminator
+            d_x: pass real image to discriminator
+
+        """
         z = self.sampling(x.shape[0])
         g_z = self.generator(z)
         d_g_z = self.discriminator(g_z)
-        # print("d_g_z", d_g_z)
         d_g_z = (d_g_z).squeeze()
         d_x = self.discriminator(x)
-        # print("d_x", d_x)
         d_x = (d_x).squeeze()
 
         return d_g_z, d_x, g_z
 
     def g_forward(self, dim):
+        '''
+            z: random noise passed to generator
+            g_z: generated image (fake)
+            d_g_z: pass fake image to discriminator
+        '''
         z = self.sampling(dim)
         g_z = self.generator(z)
         d_g_z = self.discriminator(g_z)
@@ -84,9 +97,13 @@ class gan(nn.Module):
         return d_g_z, g_z
 
     def discriminator_loss(self, d_x, d_g_z):
-        # print("d_x",d_x)
-        # print("d_g_z",d_g_z)
-        # print(d_g_z)
+        '''
+            returns real and fake loss
+            params:
+            d_x: output of discriminator when real image is passed through it
+            d_g_z: output of discriminator when generated image is passed through it
+
+        '''
         dim = d_x.shape[0]
         real_loss = self.lossFN(d_x, self.real[0:dim]).mean()
         fake_loss = self.lossFN(d_g_z, self.fake[0:dim]).mean()
@@ -95,7 +112,10 @@ class gan(nn.Module):
         return real_loss, fake_loss
 
     def generator_loss(self, d_g_z):
+        '''
+            returns generator loss to make believe that fake images are real to fool discriminator
+            params:
+            d_g_z: output of discriminator when generated image is passed through it
+        '''
         loss = self.lossFN(d_g_z, self.make_belive_real[0:d_g_z.shape[0]]).mean()
-        # loss = (torch.log(1-d_g_z)).mean()
-        # print("gloss",loss)
         return loss
