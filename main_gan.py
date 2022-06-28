@@ -38,6 +38,8 @@ def main(training_data, testing_data, num_epochs):
         s = input("Model has been trained do you want to save it? (y/n): ").lower()
         if s == 'y':
             torch.save(model.state_dict(), FILE)  # saves the trained model at the specified path
+        test_outputs, dloss, gloss = testing(model, test_loader, num_epochs)
+        cost_graph(dloss, gloss, "DCGAN  Test Loss")
 
 
 main(train_loader, test_loader, num_epochs)
