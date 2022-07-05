@@ -1,35 +1,59 @@
-from matplotlib import pyplot as plt
+import torch
+import torch
+import torch.nn as nn
+import matplotlib.pyplot as plt
 import numpy as np
+import torchvision.utils as vutils
+
+device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
 
-def cost_graph(d_loss, g_loss, title):
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+
+
+def view_images(img_list, real_batch, epoch):
+    '''
+    This function displays the result images
+    param
+    img_list: list containing per epoch results(generated img) obtained after training
+    real_batch: list containing per epoch results(real img) obtained after training
+    '''
+    print(f"Epoch: {epoch}")
+    plt.figure(figsize=(15, 15))
+    plt.subplot(1, 2, 1)
+    plt.axis("off")
+    plt.title("Real Images")
+    plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=5, normalize=True).cpu(), (1, 2, 0)))
+    plt.subplot(1, 2, 2)
+    plt.axis("off")
+    plt.title("Fake Images")
+    plt.imshow(np.transpose(img_list[-1], (1, 2, 0))) # Plot the fake images from the last epoch
+    plt.show()
+
+
+def cost_graph(g_loss, d_loss,title):
     '''
     This function plots the loss graph of discriminator and generator
     d_loss: discriminator loss per epoch
     g_loss: generator loss per epoch
-    title: title for the graph
     '''
-    plt.plot(d_loss, color='blue', label='Discriminator loss')
-    plt.plot(g_loss, color='red', label='Generator loss')
+    plt.figure(figsize=(18, 6))
+    plt.suptitle(title)
+    ax = plt.subplot(1, 2, 1)
+    plt.plot(d_loss)
     plt.ylabel('loss')
-    plt.xlabel('epochs ')
-    plt.title(title)
-    plt.legend()
-    plt.show()
+    plt.xlabel('epochs')
+    ax.set_title("Discriminator Loss")
 
-
-def view_images(output, epoch):
-    '''
-        This function displays the result images
-        param output: list containing per epoch results(real and generated) obtained after training/testing
-    '''
-
-    plt.figure(figsize=(120, 20))
-    plt.suptitle("Epoch: %i" % (epoch + 1))
-    for i in range(10):
-        plt.subplot(1, 10, i + 1)
-        plt.title("Class " + str(i + 1))
-        gen = output[1][i].cpu().detach()
-        # print(gen.numpy().shape)
-        plt.imshow(np.rot90(gen.numpy().reshape((3, 32, 32)).T, 3))
+    ax = plt.subplot(1, 2, 2)
+    plt.plot(g_loss)
+    plt.ylabel('loss')
+    plt.xlabel('epochs')
+    ax.set_title("Generator Loss")
     plt.show()

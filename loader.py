@@ -1,6 +1,13 @@
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+img_size = 64
+transform = transforms.Compose([
+    transforms.Resize((img_size, img_size)),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
 
 def trainLoader(batch_size):
     '''
@@ -8,7 +15,6 @@ def trainLoader(batch_size):
     :param batch_size: batch size to be used during training
     :return: DataLoader object of the train set
     '''
-    transform = transforms.ToTensor()
     train_data = datasets.CIFAR10(
         root="./torch_datasets",
         train=True,
@@ -25,7 +31,6 @@ def testLoader(batch_size):
     :param batch_size: batch size to be used during testing
     :return: DataLoader object of the test set
     '''
-    transform = transforms.ToTensor()
     test_data = datasets.CIFAR10(
         root="./torch_datasets",
         train=False,
